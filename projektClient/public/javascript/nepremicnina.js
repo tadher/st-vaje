@@ -20,13 +20,24 @@ app.controller('podrobnostiCtrl', function($scope, $routeParams, $http) {
         method : "GET",
         url : "http://localhost:3000/nepremicnina/" + idNep
     }).then(function mySucces(response) {
-        let nepremicnina = response.data;
-        let lokacija = response.data.lokacija;
-        $scope.nepremicnina = nepremicnina;
-        $scope.lokacija = lokacija;
+        $scope.nepremicnina = response.data;
+        $scope.lokacija = response.data.lokacija;
     }, function myError(response) {
-        $scope.nepremicnina = response.statusText;
-        $scope.lokacija = response.statusText;
+        let nepremicnine = JSON.parse(localStorage.getItem('nepremicnine'));
+        let lokacije = JSON.parse(localStorage.getItem('lokacije'));
+        let idLok = 0;
+        for(var i = 0; i < Object.keys(nepremicnine).length; i++){
+             if(nepremicnine[i].id == idNep){
+                $scope.nepremicnina = nepremicnine[i];
+                idLok = nepremicnine[i].lokacija_id;
+             };
+        };
+        for(var i = 0; i < Object.keys(lokacije).length; i++){
+             if(lokacije[i].id == idLok){
+                $scope.lokacija = lokacije[i];
+             };
+        };
+        console.log(JSON.stringify(nepremicnine));
     });
 });
 
@@ -37,16 +48,30 @@ app.controller('nepCtrl', function($scope, $http) {
     $scope.cena= 100000;
     $scope.opis= "Podroben opis nepremičnine.";
     $scope.lokacija= 0;
+    $scope.message= "";
+
+    $scope.getLocalData = function(){
+        $scope.myData = JSON.parse(localStorage.getItem('nepremicnine'));
+        $scope.chooseLokacija = JSON.parse(localStorage.getItem('lokacije'));
+    };
 
     window.addEventListener('online',  onOnline);
-    window.addEventListener('offline', onOffline);
-    window.addEventListener("load", onLoad);
+    window.addEventListener('offline', $scope.getLocalData());
+    window.addEventListener("load", $scope.getLocalData());
     document.getElementById("sin").addEventListener("click", onClick);
     document.getElementById("dodaj").addEventListener("click", addItem);
 
     function addItem(){
-        let objektNepremicnine = localStorage.getItem('nepremicnine');
-        let localNepremicnine = JSON.parse(objektNepremicnine);
+        let localNepremicnine = JSON.parse(localStorage.getItem('nepremicnine'));
+        let lokacije = JSON.parse(localStorage.getItem('lokacije'));
+        let idLok = $scope.lokacija;
+        let lokacija = '{}';
+        for(var i = 0; i < Object.keys(lokacije).length; i++){
+             if(lokacije[i].id == idLok){
+                lokacija = lokacije[i];
+                console.log(lokacija);
+             };
+        };
         var nepremicnina = {
             id: 0,
 			posredovanje : $scope.posredovanje,
@@ -54,26 +79,14 @@ app.controller('nepCtrl', function($scope, $http) {
             velikost: $scope.velikost,
             cena: $scope.cena,
             opis: $scope.opis,
-            lokacija_id: $scope.lokacija
+            lokacija_id: $scope.lokacija,
+            lokacija: lokacija
 		};
         localNepremicnine.push(nepremicnina);
         nepremicnineJSON = JSON.stringify(localNepremicnine);
         localStorage.setItem('nepremicnine', nepremicnineJSON);
         let refreshNepremicnine = localStorage.getItem('nepremicnine');
         $scope.myData = JSON.parse(refreshNepremicnine);
-    };
-
-    function getLocalData(){
-        let localNepremicnine = localStorage.getItem('nepremicnine');
-        let localLokacije = localStorage.getItem('lokacije');
-        //if(localNepremicnine.id == 0) pridobi lokacijo glede na lokacija_id
-        $http({
-            method : "GET",
-            url : "http://localhost:3000/lokacija"
-        }).then(function mySucces(response) {          
-            $scope.myData = JSON.parse(localNepremicnine);
-            $scope.chooseLokacija = JSON.parse(localLokacije);
-        });
     };
 
     function syncGet(){
@@ -86,8 +99,10 @@ app.controller('nepCtrl', function($scope, $http) {
             localStorage.setItem('nepremicnine', nepremicnineJSON);
             let localNepremicnine = localStorage.getItem('nepremicnine');
             $scope.myData = JSON.parse(localNepremicnine);
+            $scope.message = "Sinhronizacija izvedena.";
         }, function myError(response) {
-            $scope.myData = response.statusText;
+            $scope.myData = JSON.parse(localStorage.getItem('nepremicnine'));
+            $scope.message = "Ni povezave s strežnikom.";
         });
     };
 
@@ -99,10 +114,10 @@ app.controller('nepCtrl', function($scope, $http) {
                 console.log(localNepremicnine[i].opis);
                 var res = $http.post('http://localhost:3000/nepremicnina', localNepremicnine[i]);
 		        res.success(function(data, status, headers, config) {
-			        $scope.message = data;
+			        $scope.message = "Sinhronizacija izvedena.";
 		        });
 		        res.error(function(data, status, headers, config) {
-			        alert( "failure message: " + JSON.stringify({data: data}));
+			        $scope.message = "Ni povezave s strežnikom.";
 		        });
                 syncGet();
             };
@@ -110,23 +125,11 @@ app.controller('nepCtrl', function($scope, $http) {
     };
 
     function onOnline(){
-        document.getElementById("status").innerHTML = "User is online";
         syncPost();
         syncGet();   
     };
 
-    function onOffline(){
-        document.getElementById("status").innerHTML = "User is offline";
-        getLocalData();
-    };
-
-    function onLoad(){
-        document.getElementById("status").innerHTML = "User is ready";
-        getLocalData();
-    };
-
     function onClick(){
-        document.getElementById("status").innerHTML = "Button is clicked";
         syncPost();
         syncGet();      
     };   
