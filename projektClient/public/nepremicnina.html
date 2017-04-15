@@ -1,0 +1,77 @@
+<html>
+<header>
+    <title>Nepremicnina</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+    <script src="javascript/nepremicnina.js"></script>
+</header>
+<body>
+
+
+<h1>Nepremičnine</h1>
+<div  ng-app="nepApp" ng-controller="nepCtrl">
+<form>
+    <fieldset>
+		<legend>Vnos nepremičnine</legend>
+		Posredovanje:
+		<select name="posredovanje" id="posredovanje" ng-model="posredovanje">
+  			<option value="prodaja">Prodaja</option>
+  			<option value="nakup">Nakup</option>
+  			<option value="oddaja">Oddaja</option>
+ 			<option value="najem">Najem</option>
+		</select>
+		<br/>
+		Vrsta: 
+		<select name="vrsta" id="vrsta" ng-model="vrsta">
+  			<option value="stanovanje">Stanovanje</option>
+  			<option value="hisa">Hiša</option>
+  			<option value="vikend">Vikend</option>
+ 			<option value="posest">Posest</option>
+ 			<option value="poslovniProstor">Poslovni prostor</option>
+  			<option value="garaza">Garaža</option>
+  			<option value="pocitniskiObjekt">Počitniški objekt</option>
+		</select>
+		<br/>
+		Velikost: <input type="number" name="velikost" id="velikost" ng-model="velikost" min="1" max="10000" step="1" value="100"> m2<br/>
+		Cena: <input type="number" name="cena" id="cena" ng-model="cena" min="0" max="1000000" step="10" value="1000"> €<br/>
+		Opis: <br/><textarea name="opis" id="opis" ng-model="opis" rows="7" cols="40" required></textarea><br/>
+		Lokacija:
+		<select name="lokacija" id="lokacija" ng-model="lokacija">
+			<option ng-repeat="x in chooseLokacija" value="{{x.id}}">{{x.kraj}}</option>
+		</select>
+		<br/>
+		<br/>
+		<input type="reset" value="Ponastavi">
+		<button id="dodaj">Dodaj</button>
+	</fieldset>
+</form>
+
+
+<table style="width:50%">
+  <tr>
+    <th style="text-align: left">#</th>
+    <th style="text-align: left">Posredovanje</th>
+    <th style="text-align: left">Vrsta</th> 
+    <th style="text-align: left">Velikost</th>
+    <th style="text-align: left">Lokacija</th>
+  </tr>
+  <tr ng-repeat="x in myData">
+    <td>{{x.id}}</td>
+    <td>{{x.posredovanje}}</td>
+    <td>{{x.vrsta}}</td>
+    <td>{{x.velikost}}</td>
+    <td>{{x.lokacija.kraj}}</td>
+    <td><a href="#{{x.id}}">podrobnosti</a></td>
+  </tr>
+</table>
+
+<div ng-view>
+</div>
+
+</div>
+
+<p id="status"></p>
+<button id="sin">Sinhroniziraj</button>
+
+</body>
+</html>

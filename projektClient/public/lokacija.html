@@ -1,0 +1,46 @@
+<html>
+<header>
+    <title>Lokacija</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+    
+    <script src="javascript/lokacija.js"></script>
+</header>
+<body>
+
+
+<h1>Vnesi lokacijo</h1>
+<div  ng-app="lokApp" ng-controller="lokCtrl">
+
+<form>
+Kraj: <input id="kraj" type="text" ng-model="kraj"><br>
+Regija: <input id="regija" type="text" ng-model="regija"><br>
+<button id="dodaj">Dodaj</button>
+</form>
+
+
+<table style="width:50%">
+  <tr>
+    <th style="text-align: left">#</th>
+    <th style="text-align: left">Kraj</th>
+    <th style="text-align: left">Regija</th> 
+    <th style="text-align: left">Podrobnosti</th>
+  </tr>
+  <tr ng-repeat="x in myData">
+    <td>{{x.id}}</td>
+    <td>{{x.kraj}}</td>
+    <td>{{x.regija}}</td>
+    <td><a href="#{{x.id}}">podrobnosti</a></td>
+  </tr>
+</table>
+
+<div ng-view>
+</div>
+
+</div>
+
+<p id="status"></p>
+<button id="sin">Sinhroniziraj</button>
+
+</body>
+</html>
